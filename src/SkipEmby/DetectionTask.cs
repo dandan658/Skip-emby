@@ -131,6 +131,10 @@ public static class Scope
     public static long[] Parse(string? value) => (value ?? "").Split(new[] { ',', ';', ' ', '\n' }, StringSplitOptions.RemoveEmptyEntries).Select(x => long.TryParse(x, out var id) ? id : 0).Where(x => x > 0).Distinct().ToArray();
     public static bool Contains(BaseItem item, long[] libraries, ILibraryManager manager)
     {
+        if (libraries.Length == 0) return false;
+        // A virtual media library can contain multiple physical roots. Its collection ID
+        // need not occur in the Series/Season physical ParentId chain.
+        if (manager.GetCollectionFolders(item).Any(folder => libraries.Contains(folder.InternalId))) return true;
         var visited = new HashSet<long>(); BaseItem? current = item;
         for (int depth = 0; depth < 64 && current is not null; depth++)
         {

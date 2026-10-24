@@ -6,9 +6,9 @@
 
 ## 下载
 
-- [安装包 内含 DLL 和安装教程](https://github.com/dandan658/Skip-emby/releases/download/v0.1.2-preview.1/Skip-emby-0.1.2-preview.1.zip)
-- [Release 页面与校验值](https://github.com/dandan658/Skip-emby/releases/tag/v0.1.2-preview.1)
-- [对应源码包](https://github.com/dandan658/Skip-emby/releases/download/v0.1.2-preview.1/Skip-emby-source-0.1.2-preview.1.zip)
+- [安装包 内含 DLL 和安装教程](https://github.com/dandan658/Skip-emby/releases/download/v0.1.3-preview.1/Skip-emby-0.1.3-preview.1.zip)
+- [Release 页面与校验值](https://github.com/dandan658/Skip-emby/releases/tag/v0.1.3-preview.1)
+- [对应源码包](https://github.com/dandan658/Skip-emby/releases/download/v0.1.3-preview.1/Skip-emby-source-0.1.3-preview.1.zip)
 
 ## 工作方式
 
@@ -58,3 +58,7 @@ Emby 4.10.1.0 中旧式内嵌脚本不会创建页面控制器，导致插件设
 媒体库选择改为可展开、可搜索、支持多项勾选的下拉框，摘要显示已选数量和名称。选择仍按媒体库 ID 保存，搜索隐藏选项不会取消已选项。
 
 试运行即使遇到已有片头片尾标记的剧集也会读取音频验证，始终不写入标记；正式执行继续保留已有标记。报告增加媒体库范围、可用季集、读取失败和处理数量，避免将空任务误认为探测成功。
+
+## 0.1.3 虚拟媒体库范围修复
+
+使用 Emby GetCollectionFolders 识别虚拟媒体库归属，支持库与物理目录父链不一致和多个目录。下拉选项使用 Emby 原生绿色复选框，统一面板圆角、边框和选中样式。
