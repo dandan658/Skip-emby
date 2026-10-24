@@ -97,5 +97,18 @@
     "infuseSyncLogErrors": 0,
     "clientSkipButtonValidated": false
   },
-  "fullRunValidation": "Batch planner covers 63 targets beyond the first batch; actual isolated host writes and sync checks pending current build"
+  "fullRunValidation": {
+    "isolatedHostChecksPassed": 22,
+    "batchPlannerChecksPassed": 4,
+    "liveVersion": "0.1.6.0",
+    "fullLibraryRun": true,
+    "dryRun": false,
+    "librariesSelected": 1,
+    "seasonsInScope": 81,
+    "batchSize": 6,
+    "firstBatchTargetsSaved": 5,
+    "chapterBackupFilesCreated": 5,
+    "completed": false,
+    "state": "Continuing in background"
+  }
 }
