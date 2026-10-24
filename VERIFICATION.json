@@ -83,5 +83,6 @@
   },
   "flyNasLinuxPluginLoadValidated": true,
   "flyNasLinuxMediaDetectionValidated": false,
-  "configurationPageFix": "AMD view controller replaces inline script; live UI validation pending"
+  "configurationPageFix": "AMD view controller replaces inline script; flyNAS Emby 4.10.1.0 live page open, configuration load, save and reload verified",
+  "liveConfigurationUiValidated": true
 }
