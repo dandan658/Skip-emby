@@ -69,14 +69,15 @@ public sealed class DetectionTask(ILibraryManager library, IItemRepository repos
                 {
                     logger.Info("Skip-emby 读取首尾音频，条目 ID " + e.InternalId);
                     var source = e.GetMediaSources(false, false, library.GetLibraryOptions(e)).FirstOrDefault();
-                    if (source?.Path is null) throw new IOException("找不到音频来源");
-                    bool remote = Uri.TryCreate(source.Path, UriKind.Absolute, out var u) && (u.Scheme == "http" || u.Scheme == "https");
+                    var input = await MediaInput.Resolve(string.IsNullOrWhiteSpace(source?.Path) ? e.Path : source.Path, token);
+                    bool remote = Uri.TryCreate(input, UriKind.Absolute, out var u) && (u.Scheme == "http" || u.Scheme == "https");
                     if (u is not null && u.IsAbsoluteUri && !u.IsFile && !remote) throw new IOException("不支持的远程来源协议");
                     if (remote && !c.AllowRemoteSources) { logger.Info("Skip-emby 跳过远程来源，条目 ID " + e.InternalId); continue; }
                     double duration = TimeSpan.FromTicks(e.RunTimeTicks!.Value).TotalSeconds;
-                    var h = c.DetectIntro ? await extractor.Extract(executable, source.Path, 0, Math.Min(head, duration / 3), source.RequiredHttpHeaders, TimeSpan.FromSeconds(Math.Clamp(c.ProcessTimeoutSeconds, 30, 900)), token) : null;
+                    logger.Info("Skip-emby 来源已解析，条目 ID " + e.InternalId + "，远程 " + remote);
+                    var h = c.DetectIntro ? await extractor.Extract(executable, input, 0, Math.Min(head, duration / 3), source?.RequiredHttpHeaders, TimeSpan.FromSeconds(Math.Clamp(c.ProcessTimeoutSeconds, 30, 900)), token) : null;
                     double length = Math.Min(tail, duration / 3);
-                    var t = c.DetectCredits ? await extractor.Extract(executable, source.Path, duration - length, length, source.RequiredHttpHeaders, TimeSpan.FromSeconds(Math.Clamp(c.ProcessTimeoutSeconds, 30, 900)), token) : null;
+                    var t = c.DetectCredits ? await extractor.Extract(executable, input, duration - length, length, source?.RequiredHttpHeaders, TimeSpan.FromSeconds(Math.Clamp(c.ProcessTimeoutSeconds, 30, 900)), token) : null;
                     all.Add((e, h, t));
                 }
                 catch (OperationCanceledException) when (!token.IsCancellationRequested) { logger.Warn("Skip-emby 片段读取超时，条目 ID " + e.InternalId); errors.Add(new { ItemId = e.InternalId, Kind = "Timeout" }); failed = true; }

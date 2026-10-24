@@ -47,6 +47,7 @@ public sealed class Harness(ILibraryManager library, IItemRepository repository,
             {
                 string filename = i == 0 ? "episode-a.wav" : "episode-b.wav";
                 var path = Path.Combine(seasonPath, "Fixture-S01E0" + (i + 1) + ".wav"); File.Copy(Path.Combine(root, filename), path, true);
+                if (i == 0) { var shortcut = Path.ChangeExtension(path, ".strm"); File.WriteAllText(shortcut, path); path = shortcut; }
                 var item = new Episode { Id = Guid.NewGuid(), Name = "Episode " + (i + 1), Path = path, Container = "wav", IndexNumber = i + 1, ParentIndexNumber = 1, RunTimeTicks = TimeSpan.FromSeconds(i == 0 ? 166 : 172).Ticks };
                 item.SetParent(season); item.SeriesId = series.InternalId; library.CreateItem(item, season);
                 repository.SaveMediaStreams(item.InternalId, new List<MediaStream> { new() { Type = MediaStreamType.Audio, Codec = "pcm_s16le", SampleRate = 11025, Channels = 1, Index = 0 } }, CancellationToken.None);

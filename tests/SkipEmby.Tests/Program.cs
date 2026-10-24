@@ -88,6 +88,17 @@ Wav(fileA, Episode(166, 311, 12, 130)); Wav(fileB, Episode(172, 477, 18, 136));
 var psi = new ProcessStartInfo(exe) { UseShellExecute = false, CreateNoWindow = true, RedirectStandardError = true };
 foreach (var arg in new[] { "-nostdin", "-hide_banner", "-loglevel", "error", "-y", "-i", fileB, "-c:a", "aac", "-b:a", "80k", fileC }) psi.ArgumentList.Add(arg);
 using (var p = Process.Start(psi)!) { var err = p.StandardError.ReadToEndAsync(); await p.WaitForExitAsync(); await err; Check(p.ExitCode == 0, "Generated AAC fixture encodes successfully"); }
+var shortcut = Path.Combine(root, "fixture.strm");
+File.WriteAllText(shortcut, "#EXTM3U\n" + fileA + "\n");
+Check(await MediaInput.Resolve(shortcut, default) == fileA, "STRM resolves a bounded single local reference before extraction");
+File.WriteAllText(shortcut, "https://example.invalid/video.mp4?sign=private");
+Check(await MediaInput.Resolve(shortcut, default) == "https://example.invalid/video.mp4?sign=private", "STRM preserves encoded remote references without modifying signatures");
+File.WriteAllText(shortcut, "https://example.invalid/a\nhttps://example.invalid/b");
+try { await MediaInput.Resolve(shortcut, default); throw new Exception("Multiple STRM references accepted"); } catch (InvalidDataException) { Check(true, "Ambiguous multi-source STRM is rejected"); }
+File.WriteAllText(shortcut, new string('x', 65537));
+try { await MediaInput.Resolve(shortcut, default); throw new Exception("Oversized STRM accepted"); } catch (InvalidDataException) { Check(true, "Oversized STRM is rejected before FFmpeg"); }
+File.WriteAllText(shortcut, "javascript:unexpected");
+try { await MediaInput.Resolve(shortcut, default); throw new Exception("Unsupported protocol accepted"); } catch (InvalidDataException) { Check(true, "Unsupported STRM protocols are rejected"); }
 var extract = new FfmpegFingerprint();
 var ha = await extract.Extract(exe, fileA, 0, 75, null, TimeSpan.FromSeconds(30), default);
 var hb = await extract.Extract(exe, fileC, 0, 75, null, TimeSpan.FromSeconds(30), default);

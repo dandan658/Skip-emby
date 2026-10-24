@@ -6,9 +6,9 @@
 
 ## 下载
 
-- [安装包 内含 DLL 和安装教程](https://github.com/dandan658/Skip-emby/releases/download/v0.1.3-preview.1/Skip-emby-0.1.3-preview.1.zip)
-- [Release 页面与校验值](https://github.com/dandan658/Skip-emby/releases/tag/v0.1.3-preview.1)
-- [对应源码包](https://github.com/dandan658/Skip-emby/releases/download/v0.1.3-preview.1/Skip-emby-source-0.1.3-preview.1.zip)
+- [安装包 内含 DLL 和安装教程](https://github.com/dandan658/Skip-emby/releases/download/v0.1.4-preview.1/Skip-emby-0.1.4-preview.1.zip)
+- [Release 页面与校验值](https://github.com/dandan658/Skip-emby/releases/tag/v0.1.4-preview.1)
+- [对应源码包](https://github.com/dandan658/Skip-emby/releases/download/v0.1.4-preview.1/Skip-emby-source-0.1.4-preview.1.zip)
 
 ## 工作方式
 
@@ -62,3 +62,7 @@ Emby 4.10.1.0 中旧式内嵌脚本不会创建页面控制器，导致插件设
 ## 0.1.3 虚拟媒体库范围修复
 
 使用 Emby GetCollectionFolders 识别虚拟媒体库归属，支持库与物理目录父链不一致和多个目录。下拉选项使用 Emby 原生绿色复选框，统一面板圆角、边框和选中样式。
+
+## 0.1.4 STRM 音频来源
+
+解析 STRM 的单一媒体引用后再交给 FFmpeg；当基础媒体源没有路径时使用条目文件路径。限制快捷文件大小，拒绝多来源、嵌套快捷文件与不支持的协议。带签名直链只留在内存，不写入日志或报告。
