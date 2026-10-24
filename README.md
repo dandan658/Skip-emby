@@ -4,6 +4,12 @@
 
 本项目只做同季剧集的片头、片尾探测与标准章节标记管理。不会加载 Film Index、StrmAssistant、Harmony 或 InfuseSync 作为运行依赖，不注入网页脚本、不接管播放、不修改媒体源、不调整授权状态，也不修改原 Film-Index-Emby 仓库。旧项目的冲突警告不会因本插件安装而消失。
 
+## 下载
+
+- [安装包 内含 DLL 和安装教程](https://github.com/dandan658/Skip-emby/releases/download/v0.1.0-preview.1/Skip-emby-0.1.0-preview.1.zip)
+- [Release 页面与校验值](https://github.com/dandan658/Skip-emby/releases/tag/v0.1.0-preview.1)
+- [对应源码包](https://github.com/dandan658/Skip-emby/releases/download/v0.1.0-preview.1/Skip-emby-source-0.1.0-preview.1.zip)
+
 ## 工作方式
 
 - 调用 Emby 自带 FFmpeg 的 Chromaprint 算法，串行读取同季多集的首尾音频片段。
