@@ -32,5 +32,5 @@ public sealed class Plugin : BasePlugin<Configuration>, IHasWebPages
     public override string Description => "独立片头片尾音频探测，只写标准章节标记，不干预 InfuseSync 同步和播放接口。";
     public override Guid Id => Guid.Parse(PluginId);
     public string StorageDirectory => Path.Combine(ApplicationPaths.DataPath, "Skip-emby");
-    public IEnumerable<PluginPageInfo> GetPages() => new[] { new PluginPageInfo { Name = "SkipEmbyConfiguration", EmbeddedResourcePath = "SkipEmby.Configuration.html" } };
+    public IEnumerable<PluginPageInfo> GetPages() => new[] { new PluginPageInfo { Name = "SkipEmbyConfiguration", EmbeddedResourcePath = "SkipEmby.Configuration.html" }, new PluginPageInfo { Name = "SkipEmbyConfiguration.js", EmbeddedResourcePath = "SkipEmby.Configuration.js" } };
 }

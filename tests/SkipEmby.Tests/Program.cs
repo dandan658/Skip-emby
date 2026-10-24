@@ -47,6 +47,8 @@ var built = typeof(Plugin).Assembly;
 Check(built.GetReferencedAssemblies().All(x => x.Name is not "0Harmony" and not "InfuseSync" and not "FilmIndex.Emby"), "Plugin has no Harmony, InfuseSync or old Film Index dependencies");
 Check(built.GetTypes().All(t => t.GetInterfaces().All(i => i.Name != "IService" && i.Name != "IServerEntryPoint" && i.Name != "IMediaSourceProvider")), "No API routes, playback hooks or automatic library listeners are registered");
 Check(built.GetManifestResourceNames().Contains("SkipEmby.Configuration.html"), "Independent configuration page is embedded");
+Check(built.GetManifestResourceNames().Contains("SkipEmby.Configuration.js"), "Emby 4.10 page controller is embedded");
+using (var reader = new StreamReader(built.GetManifestResourceStream("SkipEmby.Configuration.html")!)) { var html = reader.ReadToEnd(); Check(html.Contains("data-controller=\"__plugin/SkipEmbyConfiguration.js\"") && !html.Contains("<script>"), "Configuration uses the Emby controller lifecycle instead of inert inline scripts"); }
 var taskWithoutHost = new DetectionTask(null!, null!, null!, null!); var cleanupWithoutHost = new RemoveTask(null!, null!, null!);
 Check(!taskWithoutHost.GetDefaultTriggers().Any() && !cleanupWithoutHost.GetDefaultTriggers().Any(), "Both tasks have no automatic default schedule");
 await Plugin.WorkLock.WaitAsync();

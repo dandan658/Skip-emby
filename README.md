@@ -6,9 +6,9 @@
 
 ## 下载
 
-- [安装包 内含 DLL 和安装教程](https://github.com/dandan658/Skip-emby/releases/download/v0.1.0-preview.1/Skip-emby-0.1.0-preview.1.zip)
-- [Release 页面与校验值](https://github.com/dandan658/Skip-emby/releases/tag/v0.1.0-preview.1)
-- [对应源码包](https://github.com/dandan658/Skip-emby/releases/download/v0.1.0-preview.1/Skip-emby-source-0.1.0-preview.1.zip)
+- [安装包 内含 DLL 和安装教程](https://github.com/dandan658/Skip-emby/releases/download/v0.1.1-preview.1/Skip-emby-0.1.1-preview.1.zip)
+- [Release 页面与校验值](https://github.com/dandan658/Skip-emby/releases/tag/v0.1.1-preview.1)
+- [对应源码包](https://github.com/dandan658/Skip-emby/releases/download/v0.1.1-preview.1/Skip-emby-source-0.1.1-preview.1.zip)
 
 ## 工作方式
 
@@ -24,7 +24,7 @@
 
 参考官方 [firecore/InfuseSync](https://github.com/firecore/InfuseSync)，针对用户已安装的 **InfuseSync 1.5.3.0** 核验。新插件没有旧项目的 InfuseSync 黑名单检查和全局运行时补丁。
 
-测试包括真实 Windows Emby 4.10.1.0 隔离进程：两插件同时初始化、运行实际生成音频的探测、写入标准章节、验证 InfuseSync 收到两集更新且同步检查点仍存在。没有在用户飞牛容器上替换现有 DLL，没有完成真实 iPhone/Apple TV 的新插件验收，不能据此保证所有版本和客户端。
+测试包括真实 Windows Emby 4.10.1.0 隔离进程：两插件同时初始化、运行实际生成音频的探测、写入标准章节、验证 InfuseSync 收到两集更新且同步检查点仍存在。已在用户飞牛容器安装并确认与 InfuseSync 同时加载；真实媒体探测和 iPhone/Apple TV 跳过行为仍待验收。
 
 InfuseSync 自己的内部行为没有被修改。建议切换时将旧 FilmIndex.Emby.dll 移到插件目录外保存，并保留旧配置；否则旧插件仍可能发出自身的冲突警告或运行重复任务。
 
@@ -48,3 +48,7 @@ dotnet run --project tests/SkipEmby.Tests/SkipEmby.Tests.csproj -c Release -p:Em
 `SkipEmby.Tests` 包含真实 FFmpeg 音频生成和 AAC/WAV 匹配。`SkipEmby.HostTests` 是独立 Emby 进程使用的测试插件，只允许带 `.fixture-only` 标记的 `skip-emby-host-*` 目录，不能装到正式服务器，也不会出现在安装包内。
 
 核心探测实现不使用服务器私有指纹管理器，不修改服务器超时字段、其他插件数据库或补丁链。源码及许可证另附，遵循 GPL-3.0。Chromaprint 由所调用的 FFmpeg 提供；本包不重新分发 FFmpeg、Chromaprint、InfuseSync 或 Emby 的 DLL。
+
+## 0.1.1 设置页修复
+
+Emby 4.10.1.0 中旧式内嵌脚本不会创建页面控制器，导致插件设置页留在隐藏状态。改用嵌入的 AMD 页面控制器，按 Emby 视图生命周期读取及保存配置；页面控制器使用传入的视图元素，避免全局选择器误绑。新增两项配置资源回归检查。

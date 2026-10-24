@@ -1,16 +1,16 @@
 {
-  "version": "0.1.0-preview.1",
+  "version": "0.1.1-preview.1",
   "date": "2026-10-24",
   "emby": "4.10.1.0",
   "infuseSync": "1.5.3.0",
-  "unitAndRealFfmpegChecks": 31,
+  "unitAndRealFfmpegChecks": 33,
   "isolatedWindowsHostChecks": 19,
-  "totalChecks": 50,
+  "totalChecks": 52,
   "isolatedWindowsHostPassed": true,
   "flyNasLinuxValidated": false,
   "appleTvPlaybackValidated": false,
   "oldProjectModified": false,
-  "productionPluginInstalledOrChanged": false,
+  "productionPluginInstalledOrChanged": true,
   "unitChecks": [
     "Safe defaults: explicit enable, selected scope, dry run and remote opt-in",
     "Scope rejects invalid and negative IDs and removes duplicates",
@@ -80,5 +80,8 @@
     "EndB": 165.1143764172336,
     "Confidence": 1,
     "Duration": 29.466757369614527
-  }
+  },
+  "flyNasLinuxPluginLoadValidated": true,
+  "flyNasLinuxMediaDetectionValidated": false,
+  "configurationPageFix": "AMD view controller replaces inline script; live UI validation pending"
 }
