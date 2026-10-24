@@ -1,0 +1,28 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>Skip-emby</title></head><body>
+<div id="SkipEmbyPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input,emby-button,emby-checkbox">
+<div data-role="content"><div class="content-primary"><h1>Skip-emby</h1>
+<p>只探测同季多集重复的片头和片尾音频，保留其他插件的标准标记。不拦截播放与同步接口。</p>
+<form id="SkipEmbyForm"><label class="checkboxContainer"><input is="emby-checkbox" type="checkbox" id="Enabled"><span>启用片头片尾探测</span></label>
+<label class="checkboxContainer"><input is="emby-checkbox" type="checkbox" id="DryRun"><span>先试运行 只记录结果不写入标记</span></label>
+<h2>选择电视剧媒体库</h2><div id="libraries"></div><p>必须明确选库；默认不运行全库。定时任务无默认计划，可在计划任务中手动启动。</p>
+<label class="checkboxContainer"><input is="emby-checkbox" type="checkbox" id="DetectIntro"><span>探测片头</span></label>
+<label class="checkboxContainer"><input is="emby-checkbox" type="checkbox" id="DetectCredits"><span>探测片尾</span></label>
+<label class="checkboxContainer"><input is="emby-checkbox" type="checkbox" id="AllowRemoteSources"><span>允许读取 STRM 和远程视频片段</span></label>
+<p>音频探测必须由 NAS 读取首尾片段，可能消耗网盘带宽；不会修改 302 播放规则。默认串行运行，不开启并发抽取。</p>
+<div class="inputContainer"><label for="IntroWindowSeconds">片头搜索范围 秒</label><input is="emby-input" type="number" min="30" max="600" id="IntroWindowSeconds"></div>
+<div class="inputContainer"><label for="CreditsWindowSeconds">片尾搜索范围 秒</label><input is="emby-input" type="number" min="30" max="600" id="CreditsWindowSeconds"></div>
+<div class="inputContainer"><label for="MinimumMatchSeconds">至少重复多少秒</label><input is="emby-input" type="number" min="10" max="90" id="MinimumMatchSeconds"></div>
+<div class="inputContainer"><label for="MaximumMatchSeconds">单个片头或片尾最长秒数</label><input is="emby-input" type="number" min="10" max="300" id="MaximumMatchSeconds"></div>
+<div class="inputContainer"><label for="MinimumEpisodes">至少几集相互验证</label><input is="emby-input" type="number" min="2" max="5" id="MinimumEpisodes"></div>
+<div class="inputContainer"><label for="MaxEpisodesPerSeason">每季单次最多读取集数</label><input is="emby-input" type="number" min="2" max="30" id="MaxEpisodesPerSeason"></div>
+<div class="inputContainer"><label for="MaxSeasonsPerRun">单次最多处理季数</label><input is="emby-input" type="number" min="1" max="100" id="MaxSeasonsPerRun"></div>
+<div class="inputContainer"><label for="ProcessTimeoutSeconds">单次片段读取超时 秒</label><input is="emby-input" type="number" min="30" max="900" id="ProcessTimeoutSeconds"></div>
+<div class="inputContainer"><label for="FfmpegPath">FFmpeg 路径 可留空沿用 Emby</label><input is="emby-input" type="text" id="FfmpegPath"></div>
+<p>FFmpeg 需要支持 chromaprint。探测依据是重复音频，不保证没有重复音乐的片尾、单集电影、无声字幕或所有特殊剪辑均可识别。客户端是否显示跳过按钮由客户端决定。</p>
+<button is="emby-button" type="submit" class="raised button-submit block"><span>保存设置</span></button><p id="skipStatus" role="status"></p></form></div></div>
+<script>
+(function(){var id='b56f2e37-909b-4439-8b31-bb51ca4acdc1',page=document.querySelector('#SkipEmbyPage'),configuration;
+var bools=['Enabled','DryRun','DetectIntro','DetectCredits','AllowRemoteSources'];var numbers=['IntroWindowSeconds','CreditsWindowSeconds','MinimumMatchSeconds','MaximumMatchSeconds','MinimumEpisodes','MaxEpisodesPerSeason','MaxSeasonsPerRun','ProcessTimeoutSeconds'];
+page.addEventListener('viewshow',function(){Dashboard.showLoadingMsg();Promise.all([ApiClient.getPluginConfiguration(id),ApiClient.ajax({type:'GET',url:ApiClient.getUrl('Library/VirtualFolders'),dataType:'json'})]).then(function(values){configuration=values[0];bools.forEach(function(k){page.querySelector('#'+k).checked=!!configuration[k];});numbers.forEach(function(k){page.querySelector('#'+k).value=configuration[k];});page.querySelector('#FfmpegPath').value=configuration.FfmpegPath||'';var list=page.querySelector('#libraries');list.textContent='';var selected=(configuration.LibraryIds||'').split(',');values[1].filter(function(l){return !l.CollectionType||l.CollectionType.toLowerCase()==='tvshows';}).forEach(function(l){var label=document.createElement('label');label.className='checkboxContainer';var input=document.createElement('input');input.type='checkbox';input.className='skipLibrary';input.value=l.ItemId;input.checked=selected.indexOf(String(l.ItemId))>=0;label.appendChild(input);label.appendChild(document.createTextNode(' '+l.Name));list.appendChild(label);});Dashboard.hideLoadingMsg();}).catch(function(){Dashboard.hideLoadingMsg();page.querySelector('#skipStatus').textContent='读取设置失败，请检查插件日志与 Emby 版本。';});});
+page.querySelector('#SkipEmbyForm').addEventListener('submit',function(e){e.preventDefault();if(!configuration)return;bools.forEach(function(k){configuration[k]=page.querySelector('#'+k).checked;});numbers.forEach(function(k){configuration[k]=Number(page.querySelector('#'+k).value);});configuration.FfmpegPath=page.querySelector('#FfmpegPath').value;configuration.LibraryIds=Array.from(page.querySelectorAll('.skipLibrary:checked')).map(function(x){return x.value;}).join(',');if(configuration.Enabled&&!configuration.LibraryIds){page.querySelector('#skipStatus').textContent='请先选择至少一个电视剧媒体库。';return;}if(configuration.MinimumEpisodes>configuration.MaxEpisodesPerSeason){page.querySelector('#skipStatus').textContent='每季读取集数不能小于相互验证集数。';return;}Dashboard.showLoadingMsg();ApiClient.updatePluginConfiguration(id,configuration).then(function(){Dashboard.hideLoadingMsg();page.querySelector('#skipStatus').textContent='已保存。请到计划任务手动运行 Skip-emby 片头片尾探测。';}).catch(function(){Dashboard.hideLoadingMsg();page.querySelector('#skipStatus').textContent='保存失败，请检查日志。';});});})();
+</script></div></body></html>
