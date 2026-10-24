@@ -6,9 +6,9 @@
 
 ## 下载
 
-- [安装包 内含 DLL 和安装教程](https://github.com/dandan658/Skip-emby/releases/download/v0.1.5-preview.1/Skip-emby-0.1.5-preview.1.zip)
-- [Release 页面与校验值](https://github.com/dandan658/Skip-emby/releases/tag/v0.1.5-preview.1)
-- [对应源码包](https://github.com/dandan658/Skip-emby/releases/download/v0.1.5-preview.1/Skip-emby-source-0.1.5-preview.1.zip)
+- [安装包 内含 DLL 和安装教程](https://github.com/dandan658/Skip-emby/releases/download/v0.1.6-preview.1/Skip-emby-0.1.6-preview.1.zip)
+- [Release 页面与校验值](https://github.com/dandan658/Skip-emby/releases/tag/v0.1.6-preview.1)
+- [对应源码包](https://github.com/dandan658/Skip-emby/releases/download/v0.1.6-preview.1/Skip-emby-source-0.1.6-preview.1.zip)
 
 ## 工作方式
 
@@ -68,3 +68,7 @@ Emby 4.10.1.0 中旧式内嵌脚本不会创建页面控制器，导致插件设
 解析 STRM 的单一媒体引用后再交给 FFmpeg；当基础媒体源没有路径时使用条目文件路径。限制快捷文件大小，拒绝多来源、嵌套快捷文件与不支持的协议。带签名直链只留在内存，不写入日志或报告。
 
 0.1.5 只调整媒体库面板中原生复选框的定位与横向溢出；探测代码与完成实际网盘三集试运行的 0.1.4 一致。
+
+## 0.1.6 全库分批写入
+
+新增“处理所选媒体库全部剧集（分批串行）”。开启后不受单次季数限制，逐批覆盖每季所有缺少标记的剧集；每批大小限制内存，只将本批目标作为写入对象，其他集仅作参考。保留已有标记和章节备份，每批保存进度报告，可取消后重新运行补齐。不开启时仍保留有界首批测试模式，默认不启用全量。

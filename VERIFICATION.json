@@ -1,11 +1,11 @@
 {
-  "version": "0.1.5-preview.1",
+  "version": "0.1.6-preview.1",
   "date": "2026-10-24",
   "emby": "4.10.1.0",
   "infuseSync": "1.5.3.0",
-  "unitAndRealFfmpegChecks": 38,
+  "unitAndRealFfmpegChecks": 42,
   "isolatedWindowsHostChecks": 22,
-  "totalChecks": 60,
+  "totalChecks": 64,
   "isolatedWindowsHostPassed": true,
   "flyNasLinuxValidated": false,
   "appleTvPlaybackValidated": false,
@@ -96,5 +96,6 @@
     "markersWritten": 0,
     "infuseSyncLogErrors": 0,
     "clientSkipButtonValidated": false
-  }
+  },
+  "fullRunValidation": "Batch planner covers 63 targets beyond the first batch; actual isolated host writes and sync checks pending current build"
 }

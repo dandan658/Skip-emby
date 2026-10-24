@@ -12,6 +12,7 @@ public sealed class Configuration : BasePluginConfiguration
     public bool DetectCredits { get; set; } = true;
     public bool AllowRemoteSources { get; set; }
     public bool DryRun { get; set; } = true;
+    public bool FullLibraryRun { get; set; }
     public int IntroWindowSeconds { get; set; } = 180;
     public int CreditsWindowSeconds { get; set; } = 180;
     public int MinimumMatchSeconds { get; set; } = 20;

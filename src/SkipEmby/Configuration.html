@@ -4,6 +4,8 @@
 <p>只探测同季多集重复的片头和片尾音频，保留其他插件的标准标记。不拦截播放与同步接口。</p>
 <form id="SkipEmbyForm"><label class="checkboxContainer"><input is="emby-checkbox" type="checkbox" id="Enabled"><span>启用片头片尾探测</span></label>
 <label class="checkboxContainer"><input is="emby-checkbox" type="checkbox" id="DryRun"><span>先试运行 只记录结果不写入标记</span></label>
+<label class="checkboxContainer"><input is="emby-checkbox" type="checkbox" id="FullLibraryRun"><span>处理所选媒体库全部剧集（分批串行）</span></label>
+<p>全量模式会逐批处理每季所有缺失标记的剧集，忽略单次季数限制；已有标记保留。关闭试运行后才实际写入。</p>
 <h2>选择电视剧媒体库</h2>
 <style>
 #SkipEmbyPage .content-primary {max-width:960px;margin:auto}
@@ -34,7 +36,7 @@
 <div class="inputContainer"><label for="MinimumMatchSeconds">至少重复多少秒</label><input is="emby-input" type="number" min="10" max="90" id="MinimumMatchSeconds"></div>
 <div class="inputContainer"><label for="MaximumMatchSeconds">单个片头或片尾最长秒数</label><input is="emby-input" type="number" min="10" max="300" id="MaximumMatchSeconds"></div>
 <div class="inputContainer"><label for="MinimumEpisodes">至少几集相互验证</label><input is="emby-input" type="number" min="2" max="5" id="MinimumEpisodes"></div>
-<div class="inputContainer"><label for="MaxEpisodesPerSeason">每季单次最多读取集数</label><input is="emby-input" type="number" min="2" max="30" id="MaxEpisodesPerSeason"></div>
+<div class="inputContainer"><label for="MaxEpisodesPerSeason">每批最多读取集数（含参考集）</label><input is="emby-input" type="number" min="2" max="30" id="MaxEpisodesPerSeason"></div>
 <div class="inputContainer"><label for="MaxSeasonsPerRun">单次最多处理季数</label><input is="emby-input" type="number" min="1" max="100" id="MaxSeasonsPerRun"></div>
 <div class="inputContainer"><label for="ProcessTimeoutSeconds">单次片段读取超时 秒</label><input is="emby-input" type="number" min="30" max="900" id="ProcessTimeoutSeconds"></div>
 <div class="inputContainer"><label for="FfmpegPath">FFmpeg 路径 可留空沿用 Emby</label><input is="emby-input" type="text" id="FfmpegPath"></div>

@@ -54,7 +54,7 @@ public sealed class Harness(ILibraryManager library, IItemRepository repository,
                 repository.SaveChapters(item.InternalId, new List<ChapterInfo> { new() { Name = "Original chapter", MarkerType = MarkerType.Chapter, StartPositionTicks = 0 } });
                 episodes.Add(item);
             }
-            c.Enabled = true; c.DryRun = true; c.LibraryIds = tv.InternalId.ToString(); c.MinimumMatchSeconds = 18; c.MaximumMatchSeconds = 60; c.IntroWindowSeconds = 75; c.CreditsWindowSeconds = 60;
+            c.Enabled = true; c.DryRun = true; c.FullLibraryRun = true; c.MaxEpisodesPerSeason = 2; c.LibraryIds = tv.InternalId.ToString(); c.MinimumMatchSeconds = 18; c.MaximumMatchSeconds = 60; c.IntroWindowSeconds = 75; c.CreditsWindowSeconds = 60;
             c.FfmpegPath = Path.Combine(root, "ffmpeg.exe"); Plugin.Instance.SaveConfiguration();
             File.WriteAllText(Path.Combine(root, "query-debug.json"), JsonSerializer.Serialize(new {
                 Library = tv.InternalId, Season = season.InternalId, SeasonParent = season.ParentId,
