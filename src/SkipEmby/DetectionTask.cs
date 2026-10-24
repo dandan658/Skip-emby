@@ -30,26 +30,32 @@ public sealed class DetectionTask(ILibraryManager library, IItemRepository repos
         double minimum = Math.Clamp(c.MinimumMatchSeconds, 10, 90), maximum = Math.Clamp(c.MaximumMatchSeconds, minimum, 300);
         int minEpisodes = Math.Clamp(c.MinimumEpisodes, 2, 5), maxEpisodes = Math.Max(Math.Clamp(c.MaxEpisodesPerSeason, 2, 30), minEpisodes);
         var executable = string.IsNullOrWhiteSpace(c.FfmpegPath) ? ffmpeg.FfmpegConfiguration.EncoderPath : c.FfmpegPath;
-        var seasons = library.GetItemList(new InternalItemsQuery { IncludeItemTypes = new[] { nameof(Season) }, Recursive = true })
-            .OfType<Season>().Where(s => s.IndexNumber != 0 && Scope.Contains(s, ids, library)).OrderBy(s => s.InternalId).ToArray();
+        var foundSeasons = library.GetItemList(new InternalItemsQuery { IncludeItemTypes = new[] { nameof(Season) }, Recursive = true }).OfType<Season>().ToArray();
+        var seasons = foundSeasons.Where(s => s.IndexNumber != 0 && Scope.Contains(s, ids, library)).OrderBy(s => s.InternalId).ToArray();
         var extractor = new FfmpegFingerprint(); var store = new MarkerStore(repository, plugin.StorageDirectory); var results = new List<object>();
-        int done = 0;
+        int done = 0, eligibleEpisodes = 0, skippedMarked = 0, skippedShortSeasons = 0;
+        var errors = new List<object>();
+        logger.Info("Skip-emby 开始，所选库 " + string.Join(",", ids) + "，范围内季数 " + seasons.Length + "，试运行 " + c.DryRun);
         foreach (var season in seasons)
         {
             token.ThrowIfCancellationRequested();
             if (library.IsScanRunning) throw new InvalidOperationException("媒体库正在扫描，请在扫描结束后运行探测。");
             var episodes = library.GetItemList(new InternalItemsQuery { IncludeItemTypes = new[] { nameof(Episode) }, ParentIds = new[] { season.InternalId }, Recursive = false })
                 .OfType<Episode>().Where(e => e.RunTimeTicks > TimeSpan.FromMinutes(2).Ticks).OrderBy(e => e.IndexNumber).ToArray();
+            eligibleEpisodes += episodes.Length;
             bool NeedsMarker(Episode e)
             {
                 var ch = repository.GetChapters(e);
                 return (c.DetectIntro && !ch.Any(x => x.MarkerType is MediaBrowser.Model.Entities.MarkerType.IntroStart or MediaBrowser.Model.Entities.MarkerType.IntroEnd)) ||
                     (c.DetectCredits && !ch.Any(x => x.MarkerType == MediaBrowser.Model.Entities.MarkerType.CreditsStart));
             }
-            var targets = episodes.Where(NeedsMarker).Take(Math.Max(1, maxEpisodes - minEpisodes + 1)).ToArray();
+            // Dry runs must still exercise source access and matching when old detectors already
+            // supplied markers. The write path continues to preserve all existing markers.
+            var targets = episodes.Where(e => c.DryRun || NeedsMarker(e)).Take(Math.Max(1, maxEpisodes - minEpisodes + 1)).ToArray();
+            if (!c.DryRun) skippedMarked += episodes.Count(e => !NeedsMarker(e));
             if (targets.Length == 0) continue;
             var selected = targets.Concat(episodes.Except(targets)).Take(maxEpisodes).ToArray();
-            if (selected.Length < minEpisodes) continue;
+            if (selected.Length < minEpisodes) { skippedShortSeasons++; continue; }
             if (done >= Math.Clamp(c.MaxSeasonsPerRun, 1, 100)) break;
             var all = new List<(Episode Item, Fingerprint? Head, Fingerprint? Tail)>();
             bool failed = false;
@@ -61,6 +67,7 @@ public sealed class DetectionTask(ILibraryManager library, IItemRepository repos
                 if (!c.DetectIntro && !c.DetectCredits) break;
                 try
                 {
+                    logger.Info("Skip-emby 读取首尾音频，条目 ID " + e.InternalId);
                     var source = e.GetMediaSources(false, false, library.GetLibraryOptions(e)).FirstOrDefault();
                     if (source?.Path is null) throw new IOException("找不到音频来源");
                     bool remote = Uri.TryCreate(source.Path, UriKind.Absolute, out var u) && (u.Scheme == "http" || u.Scheme == "https");
@@ -72,9 +79,9 @@ public sealed class DetectionTask(ILibraryManager library, IItemRepository repos
                     var t = c.DetectCredits ? await extractor.Extract(executable, source.Path, duration - length, length, source.RequiredHttpHeaders, TimeSpan.FromSeconds(Math.Clamp(c.ProcessTimeoutSeconds, 30, 900)), token) : null;
                     all.Add((e, h, t));
                 }
-                catch (OperationCanceledException) when (!token.IsCancellationRequested) { logger.Warn("Skip-emby 片段读取超时，条目 ID " + e.InternalId); failed = true; }
+                catch (OperationCanceledException) when (!token.IsCancellationRequested) { logger.Warn("Skip-emby 片段读取超时，条目 ID " + e.InternalId); errors.Add(new { ItemId = e.InternalId, Kind = "Timeout" }); failed = true; }
                 catch (OperationCanceledException) { throw; }
-                catch (Exception ex) { logger.Warn("Skip-emby 探测跳过，条目 ID " + e.InternalId + "，错误类型 " + ex.GetType().Name); failed = true; }
+                catch (Exception ex) { logger.Warn("Skip-emby 探测跳过，条目 ID " + e.InternalId + "，错误类型 " + ex.GetType().Name); errors.Add(new { ItemId = e.InternalId, Kind = ex.GetType().Name }); failed = true; }
             }
             var intros = new Dictionary<long, List<(double Start, double End, long Peer)>>(); var creditsMap = new Dictionary<long, List<(double Start, double End, long Peer)>>();
             void Add(Dictionary<long, List<(double Start, double End, long Peer)>> map, long id, long peer, double start, double end)
@@ -114,7 +121,8 @@ public sealed class DetectionTask(ILibraryManager library, IItemRepository repos
         }
         Directory.CreateDirectory(plugin.StorageDirectory);
         var report = Path.Combine(plugin.StorageDirectory, "last-report.json"); var tmp = report + ".tmp";
-        File.WriteAllText(tmp, JsonSerializer.Serialize(new { Version = "0.1.0-preview.1", CreatedUtc = DateTime.UtcNow, Results = results }, new JsonSerializerOptions { WriteIndented = true })); File.Move(tmp, report, true);
+        File.WriteAllText(tmp, JsonSerializer.Serialize(new { Version = typeof(Plugin).Assembly.GetName().Version?.ToString(), CreatedUtc = DateTime.UtcNow, DryRun = c.DryRun, LibraryIds = ids, SeasonsFound = foundSeasons.Length, SeasonsInScope = seasons.Length, SeasonsProcessed = done, EligibleEpisodes = eligibleEpisodes, SkippedAlreadyMarked = skippedMarked, SkippedInsufficientEpisodes = skippedShortSeasons, Errors = errors, Results = results }, new JsonSerializerOptions { WriteIndented = true })); File.Move(tmp, report, true);
+        logger.Info("Skip-emby 结束，处理季数 " + done + "，结果集数 " + results.Count + "，读取失败 " + errors.Count + (c.DryRun ? "，试运行未写入标记" : ""));
         progress.Report(100);
     }
 }

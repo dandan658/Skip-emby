@@ -1,11 +1,11 @@
 {
-  "version": "0.1.1-preview.1",
+  "version": "0.1.2-preview.1",
   "date": "2026-10-24",
   "emby": "4.10.1.0",
   "infuseSync": "1.5.3.0",
   "unitAndRealFfmpegChecks": 33,
-  "isolatedWindowsHostChecks": 19,
-  "totalChecks": 52,
+  "isolatedWindowsHostChecks": 22,
+  "totalChecks": 55,
   "isolatedWindowsHostPassed": true,
   "flyNasLinuxValidated": false,
   "appleTvPlaybackValidated": false,
@@ -84,5 +84,6 @@
   "flyNasLinuxPluginLoadValidated": true,
   "flyNasLinuxMediaDetectionValidated": false,
   "configurationPageFix": "AMD view controller replaces inline script; flyNAS Emby 4.10.1.0 live page open, configuration load, save and reload verified",
-  "liveConfigurationUiValidated": true
+  "liveConfigurationUiValidated": true,
+  "liveDryRunValidation": "Pending current build deployment"
 }

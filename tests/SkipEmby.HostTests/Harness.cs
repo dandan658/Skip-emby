@@ -76,6 +76,15 @@ public sealed class Harness(ILibraryManager library, IItemRepository repository,
             Check(Directory.EnumerateFiles(Path.Combine(Plugin.Instance.StorageDirectory, "marker-backups"), "*.json").Any(), "Chapter backup files created before writes");
             await task.Execute(default, new Progress<double>());
             Check(episodes.All(e => repository.GetChapters(e).Count == 4), "Repeated task leaves completed episodes and marker counts unchanged");
+            c.DryRun = true; Plugin.Instance.SaveConfiguration();
+            await task.Execute(default, new Progress<double>());
+            using (var report = JsonDocument.Parse(File.ReadAllText(Path.Combine(Plugin.Instance.StorageDirectory, "last-report.json"))))
+            {
+                Check(report.RootElement.GetProperty("Results").GetArrayLength() == 2, "Dry run still probes episodes that already have markers");
+                Check(report.RootElement.GetProperty("Errors").GetArrayLength() == 0 && report.RootElement.GetProperty("SeasonsProcessed").GetInt32() == 1, "Diagnostic report distinguishes successful extraction from an empty task");
+            }
+            Check(episodes.All(e => repository.GetChapters(e).Count == 4), "Dry run on marked episodes preserves every stored marker");
+            c.DryRun = false; Plugin.Instance.SaveConfiguration();
             for (int i = 0; i < 25; i++)
             {
                 if (InfuseSync.Plugin.Instance.Db.GetItems(0, long.MaxValue, ItemStatus.Updated, new[] { "Episode" }, 0, 100).Count >= 2) break;

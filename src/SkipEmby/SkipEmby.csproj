@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
- <PropertyGroup><TargetFramework>net8.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><Version>0.1.1-preview.1</Version><AssemblyVersion>0.1.1.0</AssemblyVersion><AssemblyName>Skip-emby</AssemblyName><RootNamespace>SkipEmby</RootNamespace><CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies></PropertyGroup>
+ <PropertyGroup><TargetFramework>net8.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><Version>0.1.2-preview.1</Version><AssemblyVersion>0.1.2.0</AssemblyVersion><AssemblyName>Skip-emby</AssemblyName><RootNamespace>SkipEmby</RootNamespace><CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies></PropertyGroup>
  <ItemGroup><Compile Include="../SkipEmby.Core/*.cs" Link="Core/%(Filename)%(Extension)" /><EmbeddedResource Include="Configuration.html" /><EmbeddedResource Include="Configuration.js" /></ItemGroup>
  <ItemGroup><Reference Include="$(EmbyServerPath)/*.dll"><Private>false</Private></Reference></ItemGroup>
  <Target Name="ExactServerRequired" BeforeTargets="ResolveReferences"><Error Condition="!Exists('$(EmbyServerPath)/MediaBrowser.Controller.dll')" Text="Provide official Emby 4.10.1.0 system assemblies via EmbyServerPath; do not redistribute them." /></Target>

@@ -4,7 +4,13 @@
 <p>只探测同季多集重复的片头和片尾音频，保留其他插件的标准标记。不拦截播放与同步接口。</p>
 <form id="SkipEmbyForm"><label class="checkboxContainer"><input is="emby-checkbox" type="checkbox" id="Enabled"><span>启用片头片尾探测</span></label>
 <label class="checkboxContainer"><input is="emby-checkbox" type="checkbox" id="DryRun"><span>先试运行 只记录结果不写入标记</span></label>
-<h2>选择电视剧媒体库</h2><div id="libraries"></div><p>必须明确选库；默认不运行全库。定时任务无默认计划，可在计划任务中手动启动。</p>
+<h2>选择电视剧媒体库</h2>
+<details id="libraryPicker" style="border:1px solid #a0a0a080;border-radius:8px;max-width:640px;margin-bottom:1em">
+<summary id="librarySummary" style="padding:14px;cursor:pointer">请选择媒体库（可多选）</summary>
+<div style="padding:0 14px 14px"><input is="emby-input" id="librarySearch" type="search" aria-label="搜索媒体库" placeholder="搜索媒体库名称">
+<div id="libraries" role="group" aria-label="媒体库多选列表" style="max-height:240px;overflow-y:auto;margin-top:12px"></div>
+<p id="libraryEmpty" hidden>没有匹配的电视剧媒体库。</p></div></details>
+<p>可展开并勾选多个电视剧媒体库；新建媒体库后重新打开本页即可选择。必须明确选库，留空不执行。定时任务无默认计划。</p>
 <label class="checkboxContainer"><input is="emby-checkbox" type="checkbox" id="DetectIntro"><span>探测片头</span></label>
 <label class="checkboxContainer"><input is="emby-checkbox" type="checkbox" id="DetectCredits"><span>探测片尾</span></label>
 <label class="checkboxContainer"><input is="emby-checkbox" type="checkbox" id="AllowRemoteSources"><span>允许读取 STRM 和远程视频片段</span></label>
