@@ -1,5 +1,5 @@
 {
-  "version": "0.1.4-preview.1",
+  "version": "0.1.5-preview.1",
   "date": "2026-10-24",
   "emby": "4.10.1.0",
   "infuseSync": "1.5.3.0",
@@ -82,8 +82,19 @@
     "Duration": 29.466757369614527
   },
   "flyNasLinuxPluginLoadValidated": true,
-  "flyNasLinuxMediaDetectionValidated": false,
+  "flyNasLinuxMediaDetectionValidated": true,
   "configurationPageFix": "AMD view controller replaces inline script; flyNAS Emby 4.10.1.0 live page open, configuration load, save and reload verified",
   "liveConfigurationUiValidated": true,
-  "liveDryRunValidation": "Pending current build deployment"
+  "liveDryRunValidation": {
+    "engineVersion": "0.1.4.0",
+    "seasonsInScope": 81,
+    "seasonsProcessed": 1,
+    "episodesProcessed": 3,
+    "readFailures": 0,
+    "introCandidates": 3,
+    "creditsCandidates": 3,
+    "markersWritten": 0,
+    "infuseSyncLogErrors": 0,
+    "clientSkipButtonValidated": false
+  }
 }
